@@ -95,12 +95,14 @@ class vxWireguardCommand():
         # subCommand: zone
         del_parser = self.subcmd.add_parser(
             'zone', help='Generate BIND-style DNS zone records')
-        del_parser.add_argument('-i', '--interface',
+        del_parser.add_argument('-i',
+                                '--interface',
                                 default=[],
                                 dest='interface',
                                 help='network-interface name',
                                 action='append')
-        del_parser.add_argument('-d', '--domain',
+        del_parser.add_argument('-d',
+                                '--domain',
                                 dest='domain',
                                 required=True,
                                 help='domain suffix',
@@ -181,8 +183,8 @@ class vxWireguardCommand():
 
     def __build_parser_show_conf(self):
         # subCommand: showconf
-        show_conf_parser = self.subcmd.add_parser(
-            'list', help='Manage peering blacklist between specified nodes')
+        show_conf_parser = self.subcmd.add_parser('ls',
+                                                  help='Print peer conf info')
         show_conf_parser.add_argument('-i',
                                       dest='interface',
                                       required=True,
@@ -192,6 +194,7 @@ class vxWireguardCommand():
         show_conf_parser.add_argument('-n',
                                       type=str,
                                       dest='nodes',
+                                      default=[],
                                       help='Show info about a node')
         show_conf_parser.add_argument(
             '-qr',
@@ -243,6 +246,7 @@ class vxWireguardCommand():
             vw_export.vw_export(args)
         elif args.subcmd == 'zone':
             zone.vw_zone(args)
+
 
 if __name__ == '__main__':
     test = vxWireguardCommand()

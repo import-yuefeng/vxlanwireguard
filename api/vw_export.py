@@ -6,7 +6,7 @@ import json
 import dicttoxml
 import toml
 import yaml
-
+import sys
 
 class exporter():
     def __init__(self, network_name):
@@ -25,20 +25,20 @@ class exporter():
         self.config.conf2str()
         self.dict_context = eval(self.config._conf2str)
 
-    def dict2json(self):
-        json_context = json.dumps(self.dict_context)
+    def dict2json(self) -> str:
+        json_context :str = json.dumps(self.dict_context)
         return json_context
 
-    def dict2yaml(self):
-        yaml_context = yaml.dump(self.dict_context)
+    def dict2yaml(self) -> str:
+        yaml_context :str = yaml.dump(self.dict_context)
         return yaml_context
 
-    def dict2xml(self):
-        xml_context = dicttoxml.dicttoxml(self.dict_context)
+    def dict2xml(self) -> str:
+        xml_context :str = dicttoxml.dicttoxml(self.dict_context)
         return xml_context
 
-    def dict2toml(self):
-        toml_context = toml.dumps(self.dict_context)
+    def dict2toml(self) -> str:
+        toml_context :str = toml.dumps(self.dict_context)
         return toml_context
 
 
@@ -48,4 +48,13 @@ def vw_export(args: argparse.Namespace) -> int:
 
     export = exporter(network_name)
 
-    print(export.dict2yaml())
+    if args.yaml:
+        print(export.dict2yaml())
+    elif args.json:
+        print(export.dict2json())
+    elif args.xml:
+        print(export.dict2xml())
+    elif args.toml:
+        print(export.dict2toml())
+    else:
+        print(export.dict2json())
