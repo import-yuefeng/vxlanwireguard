@@ -5,7 +5,7 @@ import sys
 import subprocess
 import argparse
 from pathlib import Path
-from api import add, vw_set, vw_del, genkey, genpsk, pubkey, show, showconf, blacklist, vw_export
+from api import add, show, zone, vw_set, vw_del, genkey, genpsk, pubkey, showconf, blacklist, vw_export
 import argcomplete
 
 
@@ -89,6 +89,21 @@ class vxWireguardCommand():
                                 dest='interface',
                                 required=True,
                                 help='network-interface name',
+                                action='append')
+
+    def __build_parser_zone(self):
+        # subCommand: zone
+        del_parser = self.subcmd.add_parser(
+            'zone', help='Generate BIND-style DNS zone records')
+        del_parser.add_argument('-i', '--interface',
+                                default=[],
+                                dest='interface',
+                                help='network-interface name',
+                                action='append')
+        del_parser.add_argument('-d', '--domain',
+                                dest='domain',
+                                required=True,
+                                help='domain suffix',
                                 action='append')
 
     def __build_parser_show(self):
@@ -190,6 +205,7 @@ class vxWireguardCommand():
         self.__build_parser_set()
         self.__build_parser_del()
         self.__build_parser_show()
+        self.__build_parser_zone()
         self.__build_parser_genkey()
         self.__build_parser_genpsk()
         self.__build_parser_pubkey()
@@ -225,10 +241,10 @@ class vxWireguardCommand():
                 showconf.vw_show_conf(args)
         elif args.subcmd == 'export':
             vw_export.vw_export(args)
-
+        elif args.subcmd == 'zone':
+            zone.vw_zone(args)
 
 if __name__ == '__main__':
     test = vxWireguardCommand()
     test.parser_sub_command()
-
-    # sys.exit(1)
+    sys.exit(1)

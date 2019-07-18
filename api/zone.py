@@ -29,7 +29,7 @@ import sys
 import time
 from typing import Any, Dict, List, Optional
 from . import common
-
+import argparse
 
 def vw_zone(args: argparse.Namespace) -> int:
 
@@ -38,7 +38,7 @@ def vw_zone(args: argparse.Namespace) -> int:
 
     return_value = 0
 
-    for network_name, domain_suffix in zip(argv[2::2], argv[3::2]):
+    for network_name, domain_suffix in zip(args.interface, args.domain):
         config = common.Config()
 
         if not config.load(network_name):
