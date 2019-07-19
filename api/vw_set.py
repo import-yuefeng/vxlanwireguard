@@ -13,14 +13,14 @@ class InvalidNodeError(Exception):
 def vw_set(args: argparse.Namespace) -> int:
 
     network_name = args.interface[0]
-    config = common.Config()
+    # config = common.Config()
 
-    if not config.load(network_name):
-        print("vwgen: Unable to find configuration file '{}.conf'".format(
-            network_name),
-              file=sys.stderr)
-        return errno.ENOENT
-
+    # if not config.load(network_name):
+    #     print("vwgen: Unable to find configuration file '{}.conf'".format(
+    #         network_name),
+    #           file=sys.stderr)
+    #     return errno.ENOENT
+    config = args.config
     network = config.network()
     nodes = config.nodes()
     node: Optional[common.Config.NodeType] = None
@@ -132,9 +132,7 @@ def vw_set(args: argparse.Namespace) -> int:
             node['UPnP'] = False
     except InvalidNodeError:
         print(
-            "vwgen: '{}' must be used after 'node' directive, use '--help' to check for help"
-            .format(argv[arg_index]),
-            file=sys.stderr)
+            "vwgen: must be used after 'node' directive, use '--help' to check for help")
 
     config.save()
     config.close()

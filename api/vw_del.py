@@ -9,14 +9,14 @@ from . import common
 
 def vw_del(args: argparse.Namespace) -> int:
     network_name = args.interface[0]
-    config = common.Config()
+    # config = common.Config()
 
-    if not config.load(network_name):
-        print("vwgen: Unable to find configuration file '{}.conf'".format(
-            network_name),
-              file=sys.stderr)
-        return errno.ENOENT
-
+    # if not config.load(network_name):
+    #     print("vwgen: Unable to find configuration file '{}.conf'".format(
+    #         network_name),
+    #           file=sys.stderr)
+    #     return errno.ENOENT
+    config = args.config
     network = config.network()
     nodes = config.nodes()
     blacklist = config.blacklist()

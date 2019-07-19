@@ -15,9 +15,7 @@ def vw_show(args: argparse.Namespace) -> int:
 
     return_value = 0
     for network_name in args.interface:
-        # network_name = args[2]
         config = common.Config()
-
         if not config.load(network_name):
             print("vwgen: Unable to find configuration file '{}.conf'".format(
                 network_name),

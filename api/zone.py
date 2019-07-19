@@ -39,14 +39,15 @@ def vw_zone(args: argparse.Namespace) -> int:
     return_value = 0
 
     for network_name, domain_suffix in zip(args.interface, args.domain):
-        config = common.Config()
+        # config = common.Config()
 
-        if not config.load(network_name):
-            print("vwgen: Unable to find configuration file '{}.conf'".format(
-                network_name),
-                  file=sys.stderr)
-            return_value = return_value or errno.ENOENT
-            continue
+        # if not config.load(network_name):
+        #     print("vwgen: Unable to find configuration file '{}.conf'".format(
+        #         network_name),
+        #           file=sys.stderr)
+        #     return_value = return_value or errno.ENOENT
+        #     continue
+        config = args.config
 
         network_name = config.network_name()
         domain_suffix = encodings.idna.ToASCII(''.join(

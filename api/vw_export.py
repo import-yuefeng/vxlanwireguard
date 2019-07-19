@@ -9,14 +9,15 @@ import yaml
 import sys
 
 class exporter():
-    def __init__(self, network_name):
-        self.config = common.Config()
+    def __init__(self, args):
+        # self.config = common.Config()
 
-        if not self.config.load(network_name):
-            print("vwgen: Unable to find configuration file '{}.conf'".format(
-                network_name),
-                  file=sys.stderr)
-            exit(0)
+        # if not self.config.load(network_name):
+        #     print("vwgen: Unable to find configuration file '{}.conf'".format(
+        #         network_name),
+        #           file=sys.stderr)
+        #     exit(0)
+        self.config = args.config
 
         network = self.config.network()
         nodes = self.config.nodes()
@@ -46,7 +47,7 @@ def vw_export(args: argparse.Namespace) -> int:
 
     network_name = args.interface[0]
 
-    export = exporter(network_name)
+    export = exporter(args)
 
     if args.yaml:
         print(export.dict2yaml())

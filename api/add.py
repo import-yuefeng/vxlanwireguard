@@ -11,8 +11,9 @@ import argparse
 def vw_add(args: argparse.Namespace) -> int:
 
     network_name = args.interface[0]
-    config = common.Config()
-    config.load(network_name)
+    # config = common.Config()
+    # config.load(network_name)
+    config = args.config
     network = config.network()
     nodes = config.nodes()
     blacklist = config.blacklist()

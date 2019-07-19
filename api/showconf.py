@@ -12,13 +12,13 @@ def vw_show_conf(args: argparse.Namespace) -> int:
     conf_content: str = ""
     network_name, node_name = args.interface[0], args.nodes
 
-    config = common.Config()
-    if not config.load(network_name):
-        print("vwgen: Unable to find configuration file '{}.conf'".format(
-            network_name),
-              file=sys.stderr)
-        return errno.ENOENT
-
+    # config = common.Config()
+    # if not config.load(network_name):
+    #     print("vwgen: Unable to find configuration file '{}.conf'".format(
+    #         network_name),
+    #           file=sys.stderr)
+    #     return errno.ENOENT
+    config = args.config
     network = config.network()
     nodes = config.nodes()
     blacklist = config.blacklist()

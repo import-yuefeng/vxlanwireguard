@@ -2,11 +2,21 @@
 # PYTHON_ARGCOMPLETE_OK
 
 import sys
-import subprocess
 import argparse
-from pathlib import Path
-from api import add, show, zone, vw_set, vw_del, genkey, genpsk, pubkey, showconf, blacklist, vw_export
+import subprocess
 import argcomplete
+from pathlib import Path
+from api import batch
+from api import genkey, genpsk, pubkey
+from api import common
+from api import add, show, zone, vw_set, vw_del, showconf, blacklist, vw_export
+from typing import Dict
+
+
+NORMAL = '\x1b[0m'
+BOLD = '\x1b[1m'
+GREEN = '\x1b[32m'
+YELLOW = '\x1b[33m'
 
 
 class vxWireguardCommand():
@@ -15,7 +25,9 @@ class vxWireguardCommand():
         self.subcmd = self.parser.add_subparsers(dest='subcmd',
                                                  help='subcommands',
                                                  metavar='SUBCOMMAND')
-        self.subcmd.required = True
+        self.parser.add_argument("--config", default="", dest='config', help='config class')
+
+        # self.subcmd.required = True
 
     def __build_parser_add(self):
         # subCommand: add
@@ -24,16 +36,13 @@ class vxWireguardCommand():
             help=
             'Add new nodes to the mesh network or init VxWireguard mesh net work'
         )
-        add_parser.add_argument('-c',
-                                type=Path,
-                                help='config file path of the directory',
-                                metavar='DIR')
         add_parser.add_argument('-n',
                                 default=[],
                                 dest='nodes',
                                 help='new node user name',
                                 action='append')
         add_parser.add_argument('-i',
+                                '--interface',
                                 dest='interface',
                                 required=True,
                                 help='network-interface name',
@@ -43,6 +52,12 @@ class vxWireguardCommand():
         # subCommand: set
         set_parser = self.subcmd.add_parser(
             'set', help='Change the configuration of nodes')
+        set_parser.add_argument('-i',
+                                '--interface',
+                                dest='interface',
+                                required=True,
+                                help='network-interface name',
+                                action='append')
 
         set_parser.add_argument('-n', "--node", type=str, help='Node name')
         set_parser.add_argument('-4', "--ipv4", type=str, help='Pool ipv4')
@@ -86,6 +101,7 @@ class vxWireguardCommand():
                                 help='new node user name',
                                 action='append')
         del_parser.add_argument('-i',
+                                '--interface',
                                 dest='interface',
                                 required=True,
                                 help='network-interface name',
@@ -141,6 +157,7 @@ class vxWireguardCommand():
         export_parser = self.subcmd.add_parser(
             'export', help='Export your interface config file(default: yaml)')
         export_parser.add_argument('-i',
+                                   '--interface',
                                    dest='interface',
                                    required=True,
                                    help='network-interface name',
@@ -175,17 +192,26 @@ class vxWireguardCommand():
                                       type=str,
                                       help='left_node name')
         blacklist_parser.add_argument('-i',
+                                      '--interface',
                                       dest='interface',
                                       required=True,
                                       help='network-interface name',
                                       action='append')
         blacklist_parser.add_argument('operate', help='add or del operate')
 
+    def __build_parser_batch(self):
+        # subCommand: batch        
+
+        self.parser.add_argument("-batch", default="", dest='batch', help='Read commands from provided file or standard input and invoke them.')
+
+
+
     def __build_parser_show_conf(self):
         # subCommand: showconf
         show_conf_parser = self.subcmd.add_parser('ls',
                                                   help='Print peer conf info')
         show_conf_parser.add_argument('-i',
+                                      '--interface',
                                       dest='interface',
                                       required=True,
                                       help='network-interface name',
@@ -209,6 +235,7 @@ class vxWireguardCommand():
         self.__build_parser_del()
         self.__build_parser_show()
         self.__build_parser_zone()
+        self.__build_parser_batch()
         self.__build_parser_genkey()
         self.__build_parser_genpsk()
         self.__build_parser_pubkey()
@@ -216,36 +243,61 @@ class vxWireguardCommand():
         self.__build_parser_blacklist()
         self.__build_parser_show_conf()
 
+
     def parser_sub_command(self):
         self._build_parser()
-        argcomplete.autocomplete(self.parser)
+        # conf_map = Dict[str, common.Config()]
+        conf_map = {}
         args = self.parser.parse_args()
 
-        if args.subcmd == 'add':
-            add.vw_add(args)
-        elif args.subcmd == 'del':
-            vw_del.vw_del(args)
-        elif args.subcmd == 'set':
-            vw_set.vw_set(args)
-        elif args.subcmd == 'show':
-            show.vw_show(args)
-        elif args.subcmd == 'key':
-            genkey.vw_genkey()
-        elif args.subcmd == 'psk':
-            genpsk.vw_genpsk()
-        elif args.subcmd == 'pub':
-            pubkey.vw_pubkey()
-        elif args.subcmd == 'bl':
-            blacklist.vw_blacklist(args)
-        elif args.subcmd == 'ls':
-            if args.nodes == []:
-                show.vw_show(args)
-            else:
-                showconf.vw_show_conf(args)
-        elif args.subcmd == 'export':
-            vw_export.vw_export(args)
-        elif args.subcmd == 'zone':
-            zone.vw_zone(args)
+        if args.batch:
+            command_list: list(str) = batch.load(args.batch)
+        else:
+            command_list: list(str) = [None]
+        for index, sentence in enumerate(command_list):
+            try:
+                if sentence == None:
+                    args = self.parser.parse_args()
+                else:
+                    args = self.parser.parse_args(sentence.split())
+                if args.subcmd:
+                    if args.interface[0] in conf_map:
+                        config = conf_map[args.interface[0]]
+                    else:
+                        config = common.Config()
+                        config.load(args.interface[0])
+                        conf_map[args.interface[0]] = config
+
+                    args.config = config
+                    if args.subcmd == 'add':
+                        add.vw_add(args)
+                    elif args.subcmd == 'del':
+                        vw_del.vw_del(args)
+                    elif args.subcmd == 'set':
+                        vw_set.vw_set(args)
+                    elif args.subcmd == 'show':
+                        show.vw_show(args)
+                    elif args.subcmd == 'key':
+                        genkey.vw_genkey()
+                    elif args.subcmd == 'psk':
+                        genpsk.vw_genpsk()
+                    elif args.subcmd == 'pub':
+                        pubkey.vw_pubkey()
+                    elif args.subcmd == 'bl':
+                        blacklist.vw_blacklist(args)
+                    elif args.subcmd == 'ls':
+                        if args.nodes == []:
+                            show.vw_show(args)
+                        else:
+                            showconf.vw_show_conf(args)
+                    elif args.subcmd == 'export':
+                        vw_export.vw_export(args)
+                    elif args.subcmd == 'zone':
+                        zone.vw_zone(args)
+            except Exception as e:
+                print("\n", e)
+                print("\n{0}Error: {1}{2}Found an error on the {3} line.{1}\n".format(BOLD, NORMAL, YELLOW, index+1))
+                exit(1)
 
 
 if __name__ == '__main__':
