@@ -1,10 +1,8 @@
 # !/usr/bin/env python3
-# PYTHON_ARGCOMPLETE_OK
 
 import sys
 import argparse
 import subprocess
-import argcomplete
 from pathlib import Path
 from api import batch
 from api import genkey, genpsk, pubkey
