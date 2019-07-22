@@ -36,7 +36,7 @@ class vxWireguardCommand():
             help=
             'Add new nodes to the mesh network or init VxWireguard mesh net work'
         )
-        add_parser.add_argument('-n',
+        add_parser.add_argument('-n', '--node',
                                 default=[],
                                 dest='nodes',
                                 help='new node user name',
@@ -59,43 +59,49 @@ class vxWireguardCommand():
                                 help='network-interface name',
                                 action='append')
 
-        set_parser.add_argument('-n', "--node", type=str, help='Node name')
-        set_parser.add_argument('-4', "--ipv4", type=str, help='Pool ipv4')
-        set_parser.add_argument('-6', "--ipv6", type=str, help='Pool ipv6')
-        set_parser.add_argument('--vxlan-id', type=str, help='Vxlan id')
-        set_parser.add_argument('--vxlan-mtu', type=str, help='Vxlan MTU')
-        set_parser.add_argument('--vxlan-port', type=str, help='Vxlan port')
-        set_parser.add_argument('--addr', type=str, help='Address')
-        set_parser.add_argument('--allowed-ips', type=str, help='Allowed IP')
-        set_parser.add_argument('--endpoint', type=str, help='Endpoint')
-        set_parser.add_argument('--fwmark', type=str, help='fwmark')
+        set_parser.add_argument('-n', "--node", dest='node', type=str, help='Node name')
+        set_parser.add_argument('-4', "--ipv4", dest='pool_ipv4', type=str, help='Pool ipv4')
+        set_parser.add_argument('-6', "--ipv6", dest='pool_ipv6', type=str, help='Pool ipv6')
+        set_parser.add_argument('--vxlan-id', dest='vxlan_id', type=str, help='Vxlan id')
+        set_parser.add_argument('--vxlan-mtu', dest='vxlan_mtu', type=str, help='Vxlan MTU')
+        set_parser.add_argument('--vxlan-port', dest='vxlan_port', type=str, help='Vxlan port')
+        set_parser.add_argument('--addr', dest='addr', type=str, help='Address')
+        set_parser.add_argument('--allowed-ips', dest='all_ips', type=str, help='Allowed IP')
+        set_parser.add_argument('--endpoint', dest='endpoint', type=str, help='Endpoint')
+        set_parser.add_argument('--fwmark', dest='fwmark', type=str, help='fwmark')
         set_parser.add_argument('--lladdr',
                                 type=str,
+                                dest='ll_addr', 
                                 help='Link layer address')
         set_parser.add_argument('--listen-port',
+                                dest='listen_port', 
                                 type=str,
                                 help='Config listen port')
         set_parser.add_argument('--persistent-keepalive',
+                                dest='persistent_keepalive', 
                                 type=str,
                                 help='Keep connect alive')
         set_parser.add_argument('--private-key',
+                                dest='private_key', 
                                 type=str,
                                 help='Modify private key')
         set_parser.add_argument('-s',
                                 '--save',
+                                dest='save_config', 
                                 type=str,
                                 help='To save config')
         set_parser.add_argument('--no-save',
+                                dest='nosave_config', 
                                 type=str,
                                 help='Do not save config')
-        set_parser.add_argument('--upnp', type=str, help='To do use UPnP')
-        set_parser.add_argument('--no-upnp', type=str, help='Do not use UPnP ')
+        set_parser.add_argument('--upnp', dest='upnp', type=str, help='To do use UPnP')
+        set_parser.add_argument('--no-upnp', dest='noupnp', type=str, help='Do not use UPnP ')
 
     def __build_parser_del(self):
         # subCommand: del
         del_parser = self.subcmd.add_parser(
             'del', help='Delete nodes from the mesh network')
-        del_parser.add_argument('-n',
+        del_parser.add_argument('-n', '--node',
                                 default=[],
                                 dest='nodes',
                                 help='new node user name',
@@ -128,7 +134,7 @@ class vxWireguardCommand():
         # subCommand: show
         show_parser = self.subcmd.add_parser('show',
                                              help='Show mesh network info')
-        show_parser.add_argument('-i',
+        show_parser.add_argument('-i', '--interface', 
                                  dest='interface',
                                  required=True,
                                  help='network-interface name',
@@ -217,7 +223,7 @@ class vxWireguardCommand():
                                       help='network-interface name',
                                       action='append')
 
-        show_conf_parser.add_argument('-n',
+        show_conf_parser.add_argument('-n', '--node',
                                       type=str,
                                       dest='nodes',
                                       default=[],
@@ -297,10 +303,8 @@ class vxWireguardCommand():
             except Exception as e:
                 print("\n", e)
                 print("\n{0}Error: {1}{2}Found an error on the {3} line.{1}\n".format(BOLD, NORMAL, YELLOW, index+1))
-                exit(1)
 
 
 if __name__ == '__main__':
     test = vxWireguardCommand()
     test.parser_sub_command()
-    sys.exit(1)
